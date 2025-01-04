@@ -37,7 +37,7 @@ To run this project locally, follow these steps:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/SurferFromOviedo/life-flow
+   git clone https://github.com/SurferFromOviedo/life-flow.git
 
 2. **Open the project in Android Studio**:
     - Launch Android Studio.
