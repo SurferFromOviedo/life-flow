@@ -73,8 +73,8 @@ class MainViewModel(
 
     private fun startTimerManager() {
         viewModelScope.launch {
-            photoStartTime.collectLatest { startTime ->
-                if (startTime == 0L) {
+            camActivationTime.collectLatest { activationTime ->
+                if (activationTime == 0L) {
                     val currentTime = System.currentTimeMillis()
                     val deadline = currentTime + 1000L * 60 * 60 * 3
                     val calendar = Calendar.getInstance()
@@ -89,11 +89,6 @@ class MainViewModel(
                     preferencesRepository.setPhotoDeadline(deadline)
                     preferencesRepository.setCamActivationTime(newActivationTime)
 
-                    _uiState.update { state ->
-                        state.copy(
-                            timerState = TimerState(photoTimeRemaining = deadline - currentTime)
-                        )
-                    }
                 }
                 startTimer()
             }
