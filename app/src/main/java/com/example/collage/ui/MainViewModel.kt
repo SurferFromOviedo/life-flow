@@ -73,9 +73,8 @@ class MainViewModel(
 
     private fun startTimerManager() {
         viewModelScope.launch {
-
-            camActivationTime.collectLatest { activation ->
-                if (activation == 0L) {
+            photoStartTime.collectLatest { startTime ->
+                if (startTime == 0L) {
                     val currentTime = System.currentTimeMillis()
                     val deadline = currentTime + 1000L * 60 * 60 * 3
                     val calendar = Calendar.getInstance()
@@ -110,8 +109,16 @@ class MainViewModel(
                 val activation = camActivationTime.value
                 val showCam = showCam.value
 
+                Log.i("Timer", "Current Time: $currentTime")
+                Log.i("Timer", "Start Time: $startTime")
+                Log.i("Timer", "Deadline: $deadline")
+                Log.i("Timer", "Activation: $activation")
+                Log.i("Timer", "Show Cam: $showCam")
+
+
                 when (currentTime) {
                     in startTime..<deadline -> {
+                        checkTime(startTime, deadline)
                         _uiState.update { state ->
                             state.copy(
                                 timerState = TimerState(
@@ -164,6 +171,12 @@ class MainViewModel(
         }
     }
 
+    private suspend fun checkTime(startTime: Long, deadline: Long){
+        if(deadline - startTime > 1000L * 60 * 60 * 3){
+            preferencesRepository.setPhotoStartTime(deadline - 1000L * 60 * 60 * 3)
+        }
+    }
+
 
     private fun generateRandomTime(): Long {
         val currentTime = Calendar.getInstance()
@@ -171,7 +184,7 @@ class MainViewModel(
         val endHour = 20
 
         val start = currentTime.apply {
-            add(Calendar.DAY_OF_MONTH, 1)
+            add(Calendar.DAY_OF_YEAR, 1)
             set(Calendar.HOUR_OF_DAY, startHour)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -192,7 +205,7 @@ class MainViewModel(
         NotificationScheduler.scheduleRandomNotification(context, randomDelay)
         viewModelScope.launch {
             val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
+            calendar.add(Calendar.DAY_OF_YEAR, 2)
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             calendar.set(Calendar.MINUTE, 0)
             calendar.set(Calendar.SECOND, 0)
