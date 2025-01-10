@@ -73,6 +73,7 @@ class MainViewModel(
 
     private fun startTimerManager() {
         viewModelScope.launch {
+            delay(1000L)
             camActivationTime.collectLatest { activationTime ->
                 if (activationTime == 0L) {
                     val currentTime = System.currentTimeMillis()
@@ -103,6 +104,8 @@ class MainViewModel(
                 val deadline = photoDeadline.value
                 val activation = camActivationTime.value
                 val showCam = showCam.value
+
+                completeTimerLoading()
 
                 Log.i("Timer", "Current Time: $currentTime")
                 Log.i("Timer", "Start Time: $startTime")
@@ -218,9 +221,15 @@ class MainViewModel(
         }
     }
 
-    fun completeLoading(){
+    fun completeCalendarLoading(){
         _uiState.value = _uiState.value.copy(
             calendarLoadingComplete = true
+        )
+    }
+
+    private fun completeTimerLoading(){
+        _uiState.value = _uiState.value.copy(
+            timerLoadingComplete = true
         )
     }
 

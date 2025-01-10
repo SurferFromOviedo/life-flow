@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,7 +98,7 @@ fun CollageAppTopBar(
         },
         actions = {
             if(screen == Screen.CALENDAR){
-                if(uiState.value.calendarLoadingComplete) {
+                if(uiState.value.timerLoadingComplete) {
                     val photoRemainingTime = uiState.value.timerState.photoTimeRemaining
                     val camRemainingTime = uiState.value.timerState.camActivationTimeRemaining
                     if (photoRemainingTime != null) {
@@ -149,6 +150,8 @@ fun CollageAppTopBar(
                             contentDescription = "Layout"
                         )
                     }
+                }else{
+                    Text(text = "Loading...")
                 }
             }
         }

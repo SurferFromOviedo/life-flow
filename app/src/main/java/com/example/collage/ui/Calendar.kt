@@ -69,9 +69,8 @@ fun Calendar(
         listState.scrollToItem(Int.MAX_VALUE / 2)
         scope.launch{
             delay(1000)
-            viewModel.completeLoading()
+            viewModel.completeCalendarLoading()
         }
-
     }
 
     Box(

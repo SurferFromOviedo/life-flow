@@ -4,6 +4,7 @@ import com.example.collage.data.Date
 
 data class AppState(
     val calendarLoadingComplete: Boolean = false,
+    val timerLoadingComplete: Boolean = false,
     val screenToShow: Screen = Screen.CALENDAR,
     val showImageDialog: Boolean = false,
     val selectedDate: Date? = null,

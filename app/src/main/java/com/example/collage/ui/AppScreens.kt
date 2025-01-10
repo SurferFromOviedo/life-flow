@@ -30,7 +30,6 @@ fun AppRoot(
     viewModel: MainViewModel,
     uiState: State<AppState>
 ){
-    val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
     CalendarScreen(
         modifier
