@@ -18,10 +18,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -46,34 +49,32 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(AppState())
     val uiState = _uiState.asStateFlow()
 
-    private val showCam = preferencesRepository.showCam.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = false
-    )
-    private val photoStartTime = preferencesRepository.photoStartTime.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = 0L
-    )
-    private val photoDeadline = preferencesRepository.photoDeadline.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = 0L
-    )
-    private val camActivationTime = preferencesRepository.camActivationTime.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = 0L
-    )
+    private val showCam = MutableSharedFlow<Boolean>(replay = 1)
+    private val photoStartTime = MutableSharedFlow<Long>(replay = 1)
+    private val photoDeadline = MutableSharedFlow<Long>(replay = 1)
+    private val camActivationTime = MutableSharedFlow<Long>(replay = 1)
 
     init {
-        startTimerManager()
+        viewModelScope.launch {
+            preferencesRepository.showCam.collect { showCam.emit(it) }
+        }
+        viewModelScope.launch {
+            preferencesRepository.photoStartTime.collect { photoStartTime.emit(it) }
+        }
+        viewModelScope.launch {
+            preferencesRepository.photoDeadline.collect { photoDeadline.emit(it) }
+        }
+        viewModelScope.launch {
+            preferencesRepository.camActivationTime.collect {
+                camActivationTime.emit(it)
+                startTimerManager()
+            }
+        }
     }
 
     private fun startTimerManager() {
         viewModelScope.launch {
-            delay(1000L)
+            //delay(1000L)
             camActivationTime.collectLatest { activationTime ->
                 if (activationTime == 0L) {
                     val currentTime = System.currentTimeMillis()
@@ -100,10 +101,10 @@ class MainViewModel(
         viewModelScope.launch {
             while (true) {
                 val currentTime = System.currentTimeMillis()
-                val startTime = photoStartTime.value
-                val deadline = photoDeadline.value
-                val activation = camActivationTime.value
-                val showCam = showCam.value
+                val startTime = photoStartTime.first()
+                val deadline = photoDeadline.first()
+                val activation = camActivationTime.first()
+                val showCam = showCam.first()
 
                 completeTimerLoading()
 
@@ -116,7 +117,7 @@ class MainViewModel(
 
                 when (currentTime) {
                     in startTime..<deadline -> {
-                        checkTime(startTime, deadline)
+                        //checkTime(startTime, deadline)
                         _uiState.update { state ->
                             state.copy(
                                 timerState = TimerState(
